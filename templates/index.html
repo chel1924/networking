@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cisco PinkOps Portal</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #ffe4e6 0%, #fbcfe8 50%, #f5d0fe 100%);
+            min-height: 100vh;
+            color: #4c0519;
+        }
+        .navbar {
+            background: linear-gradient(90deg, #be185d, #db2777, #ec4899);
+            color: #fff;
+            padding: 16px 36px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 8px 20px rgba(190, 24, 93, 0.35);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .navbar h1 { font-size: 20px; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); }
+        .nav-links { display: flex; gap: 10px; }
+        .nav-links button {
+            background: rgba(255, 255, 255, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 999px;
+            box-shadow: 0 4px 10px rgba(131, 24, 67, 0.2);
+            transition: 0.2s;
+        }
+        .nav-links button:hover { background: #fff; color: #be185d; transform: translateY(-2px); }
+        .badge {
+            background: #fff;
+            color: #be185d;
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(131, 24, 67, 0.25);
+        }
+        .container { width: 100%; padding: 30px 36px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 20px; margin-bottom: 24px; }
+        .card {
+            background: linear-gradient(145deg, #ffffff, #fff1f2);
+            border: 1px solid #fecdd3;
+            border-bottom: 4px solid #f43f5e;
+            border-radius: 16px;
+            padding: 22px;
+            margin-bottom: 22px;
+            box-shadow: 0 12px 24px rgba(190, 24, 93, 0.12), 0 4px 8px rgba(0, 0, 0, 0.04);
+            transition: transform 0.2s;
+        }
+        .grid .card:hover { transform: translateY(-4px); }
+        .card h3 { font-size: 16px; margin-bottom: 14px; color: #9d174d; }
+        .label { font-size: 11px; text-transform: uppercase; color: #be185d; font-weight: 700; letter-spacing: 0.6px; }
+        .val { font-size: 19px; font-weight: 800; margin-top: 6px; color: #831843; }
+        .cli-form { display: flex; gap: 12px; }
+        .cli-form input {
+            flex: 1;
+            padding: 13px 16px;
+            border: 2px solid #f9a8d4;
+            border-radius: 12px;
+            background: #fff;
+            font-family: monospace;
+            font-size: 14px;
+            color: #831843;
+            box-shadow: inset 0 3px 6px rgba(190, 24, 93, 0.1);
+        }
+        .cli-form input:focus { outline: none; border-color: #db2777; }
+        .btn {
+            padding: 13px 24px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            background: linear-gradient(180deg, #f43f5e, #e11d48);
+            color: #fff;
+            box-shadow: 0 5px 0 #9f1239, 0 8px 15px rgba(225, 29, 72, 0.35);
+            transition: all 0.15s;
+        }
+        .btn:hover { background: linear-gradient(180deg, #fb7185, #f43f5e); transform: translateY(-1px); }
+        .btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #9f1239; }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn-sec {
+            background: linear-gradient(180deg, #fdf2f8, #fce7f3);
+            color: #be185d;
+            border: 1px solid #f9a8d4;
+            box-shadow: 0 5px 0 #f472b6, 0 8px 15px rgba(244, 114, 182, 0.25);
+        }
+        .btn-sec:active { transform: translateY(3px); box-shadow: 0 2px 0 #f472b6; }
+        .chips { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+        .chip {
+            background: linear-gradient(180deg, #fff, #fce7f3);
+            color: #be185d;
+            border: 1px solid #f9a8d4;
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-family: monospace;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 3px 0 #f472b6;
+            transition: 0.15s;
+        }
+        .chip:hover { background: #ec4899; color: #fff; }
+        .chip:active { transform: translateY(2px); box-shadow: 0 1px 0 #f472b6; }
+        .error {
+            background: #ffe4e6;
+            border: 2px solid #f43f5e;
+            color: #9f1239;
+            padding: 14px 18px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            box-shadow: 0 8px 16px rgba(225, 29, 72, 0.15);
+        }
+        .term-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .term-head strong { color: #be185d; font-family: monospace; font-size: 15px; }
+        pre {
+            background: linear-gradient(180deg, #2a0818, #1a0510);
+            color: #fbcfe8;
+            padding: 18px;
+            border-radius: 12px;
+            border: 2px solid #9d174d;
+            font-family: monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+            box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.6);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <h1>Cisco PinkOps Portal</h1>
+        <div class="nav-links">
+            <button type="button" onclick="runCmd('show ip interface brief')">Interfaces</button>
+            <button type="button" onclick="runCmd('show version')">Version</button>
+            <button type="button" onclick="runCmd('show ip route')">Routes</button>
+            <button type="button" onclick="runCmd('show running-config')">Config</button>
+        </div>
+        <span class="badge">R1 &bull; 192.168.10.239</span>
+    </nav>
+
+    <div class="container">
+        <div class="grid">
+            <div class="card"><div class="label">Device</div><div class="val">R1 (Cisco 3725)</div></div>
+            <div class="card"><div class="label">Endpoint</div><div class="val">192.168.10.239:32770</div></div>
+            <div class="card"><div class="label">Status</div><div class="val">{{ 'Error' if error else 'Connected' }}</div></div>
+            <div class="card"><div class="label">Outputs</div><div class="val">{{ results|length if results else 0 }}</div></div>
+        </div>
+
+        <div class="card">
+            <h3>Execute Cisco CLI Command</h3>
+            <form method="POST" action="/" class="cli-form" id="cliForm" onsubmit="loading()">
+                <input type="text" name="custom_command" id="cmdInput" placeholder="Enter command (e.g., show ip route)...">
+                <button type="submit" id="runBtn" class="btn">Run</button>
+                <button type="button" class="btn btn-sec" onclick="fetchAll()">Fetch All</button>
+            </form>
+            <div class="chips">
+                <button type="button" class="chip" onclick="runCmd('show ip interface brief')">show ip interface brief</button>
+                <button type="button" class="chip" onclick="runCmd('show version')">show version</button>
+                <button type="button" class="chip" onclick="runCmd('show ip route')">show ip route</button>
+                <button type="button" class="chip" onclick="runCmd('show running-config')">show running-config</button>
+            </div>
+        </div>
+
+        {% if error %}
+            <div class="error">{{ error }}</div>
+        {% endif %}
+
+        {% if results %}
+            {% for command, output in results.items() %}
+                <div class="card">
+                    <div class="term-head">
+                        <strong>R1# {{ command }}</strong>
+                        <div>
+                            <button type="button" class="chip" onclick="copyTxt(this, 'o-{{ loop.index }}')">Copy</button>
+                            <button type="button" class="chip" onclick="saveTxt('{{ command }}', 'o-{{ loop.index }}')">Download</button>
+                        </div>
+                    </div>
+                    <pre id="o-{{ loop.index }}">{{ output }}</pre>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <script>
+        function loading() {
+            const btn = document.getElementById("runBtn");
+            btn.disabled = true;
+            btn.innerText = "Running...";
+        }
+        function runCmd(cmd) {
+            document.getElementById("cmdInput").value = cmd;
+            loading();
+            document.getElementById("cliForm").submit();
+        }
+        function fetchAll() {
+            document.getElementById("cmdInput").value = "";
+            loading();
+            document.getElementById("cliForm").submit();
+        }
+        function copyTxt(btn, id) {
+            navigator.clipboard.writeText(document.getElementById(id).innerText);
+            btn.innerText = "Copied";
+            setTimeout(() => btn.innerText = "Copy", 1200);
+        }
+        function saveTxt(cmd, id) {
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(new Blob([document.getElementById(id).innerText], { type: "text/plain" }));
+            a.download = "R1_" + cmd.replace(/\s+/g, "_") + ".txt";
+            a.click();
+        }
+    </script>
+</body>
+</html>
